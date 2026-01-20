@@ -24,9 +24,10 @@ def start():
     
 
 def get_redirect_uri():
-    return frappe.utils.get_url(
-        "/api/method/salla_integration.api.oauth.callback"
-    )
+    # return frappe.utils.get_url(
+    #     "/api/method/salla_integration.api.oauth.callback"
+    # )
+    return "https://erpnext.khaldosh.dev/api/method/salla_integration.api.oauth.callback"
 
 
 @frappe.whitelist(allow_guest=True)
