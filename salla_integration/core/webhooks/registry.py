@@ -65,6 +65,8 @@ class WebhookRegistry:
         """List all registered event types."""
         return list(cls._handlers.keys())
 
+from salla_integration.core.webhooks import order_webhooks
+
 
 @frappe.whitelist(allow_guest=True)
 def handle_webhook():
@@ -73,6 +75,7 @@ def handle_webhook():
     Validates signature and dispatches to appropriate handler.
     """
     
+    print("Webhook received")
     
     # Get request data
     payload = frappe.request.get_json()
@@ -90,8 +93,10 @@ def handle_webhook():
     if not event_type:
         frappe.throw("No event type in payload", frappe.ValidationError)
     
+    print(f"Handling webhook event: {event_type}")
+    
     # Log the webhook
-    log_webhook(event_type, payload)
+    # log_webhook(event_type, payload)
     
     # Dispatch to handler
     handled = WebhookRegistry.dispatch(event_type, payload)
