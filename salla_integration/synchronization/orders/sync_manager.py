@@ -154,6 +154,7 @@ class OrderSyncManager(BaseSyncManager):
             "delivery_date": frappe.utils.add_days(frappe.utils.today(), 7),
             "items": self._build_order_items(items_data.get("data", [])),
             "selling_price_list": "Standard Selling",
+            "price_list_currency": "INR",
             "conversion_rate": 1,
             "plc_conversion_rate": 1,
         }
