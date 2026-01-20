@@ -128,7 +128,7 @@ class ProductPayloadBuilderEn(ProductPayloadBuilder):
     
     def add_name(self) -> "ProductPayloadBuilderEn":
         """Add product name to payload."""
-        self.payload["name"] = self.doc.item_name_in_english_cf
+        self.payload["name"] = self.doc.custom_item_name_english
         return self
     
     def add_description(self) -> "ProductPayloadBuilderEn":
