@@ -1,0 +1,98 @@
+{
+  "products": [
+    {
+      "id": 1001,
+      "name": "Test Product 1",
+      "description": "First test product",
+      "sku": "TEST-001",
+      "price": {
+        "amount": 100,
+        "currency": "SAR"
+      },
+      "quantity": 50,
+      "categories": [
+        {"id": 101, "name": "Electronics"}
+      ],
+      "images": [
+        {"url": "https://example.com/img1.jpg"}
+      ],
+      "status": "active"
+    },
+    {
+      "id": 1002,
+      "name": {"en": "Test Product 2", "ar": "منتج اختبار 2"},
+      "description": {"en": "Second test product", "ar": "المنتج التجريبي الثاني"},
+      "sku": "TEST-002",
+      "price": {
+        "amount": 250,
+        "currency": "SAR"
+      },
+      "quantity": 25,
+      "categories": [],
+      "status": "active"
+    }
+  ],
+  "categories": [
+    {
+      "id": 101,
+      "name": "Electronics",
+      "parent_id": null
+    },
+    {
+      "id": 102,
+      "name": "Phones",
+      "parent_id": 101
+    },
+    {
+      "id": 103,
+      "name": "Accessories",
+      "parent_id": 101
+    }
+  ],
+  "customers": [
+    {
+      "id": 2001,
+      "first_name": "Mohammed",
+      "last_name": "Ahmed",
+      "email": "mohammed@example.com",
+      "mobile": "+966501234567"
+    },
+    {
+      "id": 2002,
+      "first_name": "Sara",
+      "last_name": "Ali",
+      "email": "sara@example.com",
+      "mobile": "+966509876543"
+    }
+  ],
+  "orders": [
+    {
+      "id": 3001,
+      "status": {
+        "id": 1,
+        "name": "pending"
+      },
+      "customer": {
+        "id": 2001,
+        "first_name": "Mohammed",
+        "last_name": "Ahmed"
+      },
+      "items": [
+        {
+          "product_id": 1001,
+          "sku": "TEST-001",
+          "name": "Test Product 1",
+          "quantity": 2,
+          "price": {
+            "amount": 100
+          }
+        }
+      ],
+      "amounts": {
+        "sub_total": {"amount": 200},
+        "shipping": {"amount": 25},
+        "total": {"amount": 225}
+      }
+    }
+  ]
+}

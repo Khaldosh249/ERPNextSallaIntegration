@@ -132,13 +132,50 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Item": {
+        "after_insert": "salla_integration.events.item_events.on_item_insert", # Done
+        "on_update": "salla_integration.events.item_events.on_item_update", # Done
+        "before_delete": "salla_integration.events.item_events.before_item_delete", # TODO: Test this
+    },
+    "Item Price": {
+        "after_insert": "salla_integration.events.item_events.on_item_price_update", # Done
+        "on_update": "salla_integration.events.item_events.on_item_price_update", # Done
+    },
+    "Salla Category": {
+        "after_insert": "salla_integration.events.salla_category_events.on_salla_category_insert",
+        "on_update": "salla_integration.events.salla_category_events.on_salla_category_update",
+        "before_delete": "salla_integration.events.salla_category_events.before_salla_category_delete",
+    },
+    "Stock Entry": {
+        "on_submit": "salla_integration.events.stock_events.on_stock_entry_submit", # Done
+        "on_cancel": "salla_integration.events.stock_events.on_stock_entry_cancel", # Done
+    },
+    "Stock Reconciliation": {
+        "on_submit": "salla_integration.events.stock_events.on_stock_reconciliation_submit", # TODO: Test this
+    },
+    "Delivery Note": {
+        # "on_submit": "salla_integration.events.order_events.on_delivery_note_submit",
+        "on_submit": "salla_integration.events.order_events.on_delivery_note_submit",
+    },
+    # "Sales Invoice": {
+    #     "on_submit": "salla_integration.events.order_events.on_sales_invoice_submit",
+    # },
+    "Sales Order": {
+        "on_cancel": "salla_integration.events.order_events.on_sales_order_cancel",
+    },
+}
+
+
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["name", "like", "Item%-custom_%"],
+            
+        ]
+    },
+]
 
 # Scheduled Tasks
 # ---------------

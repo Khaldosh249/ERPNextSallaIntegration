@@ -1,0 +1,41 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-14 17:01:43.425069",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "salla_category",
+  "is_primary"
+ ],
+ "fields": [
+  {
+   "fieldname": "salla_category",
+   "fieldtype": "Link",
+   "label": "Salla Category",
+   "options": "Salla Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_primary",
+   "fieldtype": "Check",
+   "label": "Is Primary"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-14 17:07:12.199376",
+ "modified_by": "Administrator",
+ "module": "Salla Integration",
+ "name": "Salla Item Category",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-14 10:58:36.106963",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "salla_product_id",
+  "item_code",
+  "sync_status",
+  "last_synced",
+  "synced_fields",
+  "images_variance",
+  "salla_item_categories",
+  "item_name_sync_status",
+  "description_sync_status",
+  "price_sync_status",
+  "sku_sync_status",
+  "categories_sync_status",
+  "image_sync_status",
+  "stock_sync_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "salla_product_id",
+   "fieldtype": "Data",
+   "label": "Salla Product ID"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "ERPNext Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "sync_status",
+   "fieldtype": "Select",
+   "label": "Sync Status",
+   "options": "Pending\nSynced\nFailed\nNot Found in Salla"
+  },
+  {
+   "fieldname": "last_synced",
+   "fieldtype": "Datetime",
+   "label": "Last Synced"
+  },
+  {
+   "fieldname": "synced_fields",
+   "fieldtype": "JSON",
+   "label": "Synced Fields"
+  },
+  {
+   "fieldname": "salla_item_categories",
+   "fieldtype": "Table",
+   "label": "Salla Item Categories",
+   "options": "Salla Item Category"
+  },
+  {
+   "fieldname": "images_variance",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Image"
+  },
+  {
+   "fieldname": "item_name_sync_status",
+   "fieldtype": "Select",
+   "label": "Name Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "description_sync_status",
+   "fieldtype": "Select",
+   "label": "Description Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "price_sync_status",
+   "fieldtype": "Select",
+   "label": "Price Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "sku_sync_status",
+   "fieldtype": "Select",
+   "label": "SKU Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "categories_sync_status",
+   "fieldtype": "Select",
+   "label": "Categories Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "image_sync_status",
+   "fieldtype": "Select",
+   "label": "Images Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  },
+  {
+   "fieldname": "stock_sync_status",
+   "fieldtype": "Select",
+   "label": "Stock Sync Status",
+   "options": "Synced\nFailed to Sync\nNot Synced"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-18 09:54:01.534219",
+ "modified_by": "Administrator",
+ "module": "Salla Integration",
+ "name": "Salla Product",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
