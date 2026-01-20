@@ -4,7 +4,6 @@
 from salla_integration.models.mappers import (
     ProductMapper,
     CategoryMapper,
-    CustomerMapper,
     OrderMapper,
 )
 from salla_integration.models.schemas import (
@@ -16,7 +15,6 @@ from salla_integration.models.schemas import (
 __all__ = [
     "ProductMapper",
     "CategoryMapper",
-    "CustomerMapper",
     "OrderMapper",
     "ProductSchema",
     "CategorySchema",

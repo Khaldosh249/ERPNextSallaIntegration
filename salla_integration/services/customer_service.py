@@ -7,7 +7,6 @@ import frappe
 from typing import Dict, Any, Optional, List
 
 from salla_integration.synchronization.customers import CustomerSyncManager
-from salla_integration.models.mappers import CustomerMapper
 from salla_integration.models.schemas import CustomerSchema
 from salla_integration.jobs.customer_jobs import enqueue_customer_import
 
@@ -59,29 +58,6 @@ class CustomerService:
         
         return self.sync_manager.import_all_customers()
     
-    def get_customer_by_salla_id(self, salla_customer_id: str) -> Optional[str]:
-        """
-        Get ERPNext Customer by Salla customer ID.
-        
-        Args:
-            salla_customer_id: Salla customer ID
-            
-        Returns:
-            Customer name or None
-        """
-        return CustomerMapper.get_erpnext_customer(salla_customer_id)
-    
-    def get_salla_id_for_customer(self, customer_name: str) -> Optional[str]:
-        """
-        Get Salla customer ID for an ERPNext Customer.
-        
-        Args:
-            customer_name: ERPNext Customer name
-            
-        Returns:
-            Salla customer ID or None
-        """
-        return CustomerMapper.get_salla_customer_id(customer_name)
     
     def get_sync_status(self, customer_name: str) -> Dict[str, Any]:
         """
