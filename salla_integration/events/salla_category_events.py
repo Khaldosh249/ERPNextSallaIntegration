@@ -17,6 +17,10 @@ def on_salla_category_update(doc, method=None):
         doc: Salla Category document
         method: Hook method name
     """
+    # Skip if this update is from Salla import (avoid recursive sync)
+    if getattr(doc.flags, "from_salla_import", False):
+        return
+    
     settings = get_salla_settings()
     
     if not settings or not settings.enabled:
@@ -35,6 +39,10 @@ def on_salla_category_insert(doc, method=None):
         doc: Salla Category document
         method: Hook method name
     """
+    # Skip if this insert is from Salla import (avoid recursive sync)
+    if getattr(doc.flags, "from_salla_import", False):
+        return
+    
     settings = get_salla_settings()
     
     if not settings or not settings.enabled:

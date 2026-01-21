@@ -122,6 +122,18 @@ class CategorySyncManager(BaseSyncManager):
                     "category_name": category_data.get("name"),
                     "category_name_en": category_data.get("name_en"),
                 }
+                frappe.db.set_value(
+                    "Salla Category",
+                    existing,
+                    "category_name", category_data.get("name"),
+                    update_modified=False
+                )
+                frappe.db.set_value(
+                    "Salla Category",
+                    existing,
+                    "category_name_en", category_data.get("name_en"),
+                    update_modified=False
+                )
                 parent_id = category_data.get("parent_id")
                 if parent_id:
                     parent_name = frappe.db.get_value(
@@ -130,15 +142,16 @@ class CategorySyncManager(BaseSyncManager):
                         "name"
                     )
                     if parent_name:
-                        salla_category_data["parent_salla_category"] = parent_name
+                        frappe.db.set_value(
+                            "Salla Category",
+                            existing,
+                            "parent_salla_category",
+                            parent_name
+                        )
                 operation = "Update"
-                frappe.db.set_value(
-                    "Salla Category",
-                    existing,
-                    salla_category_data
-                )
                 frappe.db.commit()
                 doc = frappe.get_doc("Salla Category", existing)
+                print("Updated category from Salla:", doc.name)
             else:
                 # Create new category
                 salla_category_data = {
@@ -157,6 +170,7 @@ class CategorySyncManager(BaseSyncManager):
                     if parent_name:
                         salla_category_data["parent_salla_category"] = parent_name
                 doc = frappe.get_doc(salla_category_data)
+                doc.flags.from_salla_import = True
                 doc.insert(ignore_permissions=True)
                 operation = "Create"
             
@@ -198,8 +212,6 @@ class CategorySyncManager(BaseSyncManager):
             Result dict with counts
         """
         
-        # Use pagination to fetch all categories in ar and en
-        
         try:
             
             has_more = True
@@ -210,62 +222,20 @@ class CategorySyncManager(BaseSyncManager):
             
             while has_more:
                 
-                params = {"page": page, "per_page": per_page}
+                params = {"page": page, "per_page": per_page, "with": "items,translations"}
                 
-                
-                response_in_ar = self.client.get_categories(params=params, lang="ar")
+                response_in_ar = self.client.get_categories(params=params)
                 print(response_in_ar)
-                response_in_en = self.client.get_categories(params=params, lang="en")
-                print(response_in_en)
-                if not response_in_ar.get("success") or not response_in_en.get("success"):
+                if not response_in_ar.get("success"):
                     return {"status": "error", "message": "Failed to fetch categories from Salla"}
                 
-                categories_ar = response_in_ar.get("data", [])
-                categories_en = response_in_en.get("data", [])
+                categories_data = response_in_ar.get("data", [])
                 
-                # Merge categories by ID
-                categories_dict = {}
-                for cat in categories_ar:
-                    categories_dict[cat["id"]] = {"ar": cat}
-                for cat in categories_en:
-                    if cat["id"] in categories_dict:
-                        categories_dict[cat["id"]]["en"] = cat
-                    else:
-                        categories_dict[cat["id"]] = {"en": cat}
+                for category in categories_data:
+                    
+                    self.import_category_with_items_recursively(category)
                     
                 
-                categories = list(categories_dict.values())
-                
-                
-                for category_pair in categories:
-                    # category_data = category_pair.get("ar") or category_pair.get("en")
-                    
-                    category_data = {
-                        "id": category_pair.get("ar", {}).get("id") or category_pair.get("en", {}).get("id"),
-                        "name": category_pair.get("ar", {}).get("name"),
-                        "parent_id": category_pair.get("ar", {}).get("parent_id"),
-                        "name_en": category_pair.get("en", {}).get("name")
-                    }
-                    print("Importing category:", category_data)
-                    result = self.sync_from_salla(category_data=category_data)
-                    
-                    
-                    if category_pair.get("ar").get("sub_categories", []):
-                        
-                        print("Has subcategories in AR:", category_pair.get("ar").get("sub_categories"))
-                        
-                        for sub_cat in category_pair.get("ar").get("sub_categories", []):
-                            
-                            self.sync_from_salla_by_category_id(sub_cat.get("id"))
-                            
-                        
-                    
-                    
-                    if result.get("status") == "success":
-                        total_imported += 1
-                    else:
-                        total_failed += 1
-                    
                 
                 # Check if more pages
                 pagination = response_in_ar.get("pagination", {})
@@ -274,13 +244,11 @@ class CategorySyncManager(BaseSyncManager):
                 total_pages = pagination.get("totalPages", 1)
                 
                 if current_page < total_pages:
-                    print("Has more pages")
                     page += 1
                     has_more = True
                 else:
-                    print("No more pages")
                     has_more = False
-                print(f"Imported page {current_page} of {total_pages}")
+                
             
             return {
                 "status": "success",
@@ -291,12 +259,41 @@ class CategorySyncManager(BaseSyncManager):
         
         except Exception as e:
             print(str(e))
-            # print traceback
             
             import traceback
             traceback.print_exc()
             
             return {"status": "error", "message": str(e)}
+        
+        
+    
+    
+    def import_category_with_items_recursively(self, category_data: Dict[str, Any]) -> Dict[str, Any]:
+        
+        salla_category_id = category_data.get("id")
+        
+        category_translation = category_data.get("translations", {})
+        name_ar = category_translation.get("ar", {}).get("name")
+        name_en = category_translation.get("en", {}).get("name")
+        
+        category_doc_data = {
+            "id": salla_category_id,
+            "name": name_ar,
+            "name_en": name_en if name_en else name_ar,
+            "parent_id": category_data.get("parent_id")
+        }
+        
+        result = self.sync_from_salla(category_data=category_doc_data)
+        
+        if result.get("status") != "success":
+            return result
+        
+        items = category_data.get("items", [])
+        
+        for item in items:
+            
+            self.import_category_with_items_recursively(item)
+            
         
         
     
