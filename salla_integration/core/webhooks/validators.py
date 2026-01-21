@@ -35,10 +35,9 @@ def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool
         return True
     
     # Calculate expected signature
-    payload_string = frappe.as_json(payload)
     expected_signature = hmac.new(
         webhook_secret.encode("utf-8"),
-        payload_string.encode("utf-8"),
+        payload,
         hashlib.sha256
     ).hexdigest()
     

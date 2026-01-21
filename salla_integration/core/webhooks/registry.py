@@ -77,12 +77,9 @@ def handle_webhook():
     
     print("Webhook received")
     
-    # Get request data
-    payload = frappe.request.get_json()
-    
     raw_data = frappe.request.get_data()
     
-    if not payload:
+    if not raw_data:
         frappe.throw("No payload received", frappe.ValidationError)
     
     # Validate webhook signature
@@ -90,6 +87,11 @@ def handle_webhook():
     if not validate_webhook_signature(raw_data, signature):
         print("Invalid webhook signature")
         frappe.throw("Invalid webhook signature", frappe.AuthenticationError)
+    
+    
+    # Get request data
+    payload = frappe.parse_json(raw_data)
+    
     
     # Get event type
     event_type = payload.get("event")
