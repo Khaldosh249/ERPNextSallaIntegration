@@ -41,6 +41,12 @@ def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool
         hashlib.sha256
     ).hexdigest()
     
+    frappe.log_error({
+    "received": signature,
+    "computed": expected_signature,
+    "raw_body": payload.decode("utf-8")
+    }, "Salla Signature Debug")
+    
     # Compare signatures using constant-time comparison
     return hmac.compare_digest(signature, expected_signature)
 
