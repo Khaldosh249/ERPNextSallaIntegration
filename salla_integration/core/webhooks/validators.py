@@ -44,7 +44,7 @@ def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool
     frappe.log_error({
     "received": signature,
     "computed": expected_signature,
-    "raw_body": payload.decode("utf-8")
+    "webhook_secret": webhook_secret
     }, "Salla Signature Debug")
     
     # Compare signatures using constant-time comparison
