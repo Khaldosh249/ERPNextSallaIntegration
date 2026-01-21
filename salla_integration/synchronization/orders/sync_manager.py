@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
 # from salla_integration.synchronization.orders.status_mapper import map_salla_status_to_erpnext
-from salla_integration.core.utils.helpers import get_default_company, get_default_currency, get_default_price_list, get_default_taxes_and_charges, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse
+from salla_integration.core.utils.helpers import get_default_company, get_default_currency, get_default_price_list, get_default_taxes_and_charges, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse, get_taxes_from_sales_taxes_template
 from salla_integration.synchronization.customers.sync_manager import CustomerSyncManager
 from salla_integration.synchronization.products.stock_sync import sync_stock_to_salla
 
@@ -146,6 +146,7 @@ class OrderSyncManager(BaseSyncManager):
         default_price_list = get_default_price_list()
         default_currency = get_default_currency()
         default_taxes_and_charges_template = get_default_taxes_and_charges()
+        default_taxes = get_taxes_from_sales_taxes_template(default_taxes_and_charges_template) if default_taxes_and_charges_template else []
         
         # Sales Order Data
         sales_order_data = {
@@ -160,6 +161,7 @@ class OrderSyncManager(BaseSyncManager):
             "selling_price_list": default_price_list,
             "price_list_currency": default_currency,
             "taxes_and_charges": default_taxes_and_charges_template,
+            "taxes": default_taxes,
             "conversion_rate": 1,
             "plc_conversion_rate": 1,
         }

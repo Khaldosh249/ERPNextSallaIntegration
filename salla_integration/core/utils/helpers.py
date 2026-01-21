@@ -91,6 +91,19 @@ def get_default_taxes_and_charges() -> Optional[str]:
     return settings.default_taxes_and_charges if hasattr(settings, "default_taxes_and_charges") else None
 
 
+def get_taxes_from_sales_taxes_template(template_name: str) -> list:
+    """
+    Get the list of taxes from a Sales Taxes and Charges Template.
+    
+    Args:
+        template_name: The name of the Sales Taxes and Charges Template
+    Returns:
+        List of tax dicts
+    """
+    tax_template = frappe.get_doc("Sales Taxes and Charges Template", template_name)
+    return tax_template.taxes if tax_template else []
+
+
 def get_default_customer_group() -> Optional[str]:
     """
     Get the default customer group from Salla Settings.
