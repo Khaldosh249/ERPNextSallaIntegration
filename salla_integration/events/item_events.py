@@ -5,7 +5,7 @@ Handles ERPNext Item hooks for Salla sync.
 
 import frappe
 from salla_integration.core.utils.helpers import get_salla_settings
-from salla_integration.synchronization.products.sync_manager import sync_item_to_salla
+from salla_integration.synchronization.products.sync_manager import sync_item_sku_on_rename, sync_item_to_salla
 
 # Done
 def on_item_update(doc, method=None):
@@ -134,3 +134,40 @@ def on_item_price_update(doc, method=None):
         job_name=f"salla_price_update_{item.name}"
     )
     
+
+
+
+
+def after_rename_item(doc, method, old_name, new_name, merge=False):
+    """
+    Handle Item rename event.
+    Updates Salla product linkage if item code changes.
+    
+    Args:
+        doc: Item document
+        method: Hook method name
+        old_name: Previous item code
+        new_name: New item code
+        merge: Whether items were merged
+    """
+    settings = get_salla_settings()
+    
+    if not settings or not settings.enabled:
+        return
+    
+    print(f"Item renamed from {old_name} to {new_name}")
+    
+    # Update Salla Product linkage
+    salla_product = frappe.db.get_value(
+        "Salla Product",
+        {"item_code": new_name},
+        ["name"],
+        as_dict=True
+    )
+    
+    
+    if salla_product:
+        sync_item_sku_on_rename(doc, method, old_name, new_name)
+
+
+

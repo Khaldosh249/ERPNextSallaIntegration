@@ -137,6 +137,7 @@ doc_events = {
         "after_insert": "salla_integration.events.item_events.on_item_insert", # Done
         "on_update": "salla_integration.events.item_events.on_item_update", # Done
         "before_delete": "salla_integration.events.item_events.before_item_delete", # TODO: Test this
+        "after_rename": "salla_integration.events.item_events.after_rename_item",
     },
     "Item Price": {
         "after_insert": "salla_integration.events.item_events.on_item_price_update", # Done

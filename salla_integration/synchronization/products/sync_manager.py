@@ -781,6 +781,10 @@ class ProductSyncManager(BaseSyncManager):
         """Check if an item should be synced to Salla."""
         return bool(getattr(item, "custom_sync_with_salla", False))
     
+    def should_sync_sku(self, item) -> bool:
+        """Check if the SKU field should be synced."""
+        return bool(getattr(item, "custom_sync_sku", False))
+    
     def any_field_requires_sync(self, item) -> bool:
         """Check if any field of the item requires syncing."""
         return any([
@@ -846,6 +850,62 @@ class ProductSyncManager(BaseSyncManager):
                 }
             )
             frappe.db.commit()
+    
+    
+    def handle_item_rename(self, doc, method, old_name, new_name):
+        """Handle renaming of an Item.
+        Update the Salla Product record to reflect the new item code.
+        Update sku in Salla if synced.
+        """
+        
+        salla_product = frappe.db.get_value(
+            "Salla Product",
+            {"item_code": new_name},
+            ["name", "salla_product_id"],
+            as_dict=True
+        )
+        
+        
+        
+        if salla_product:
+            # Update item_code in Salla Product record
+            frappe.db.set_value(
+                "Salla Product",
+                salla_product.name,
+                "item_code",
+                new_name
+            )
+            frappe.db.commit()
+            
+            # Update SKU in Salla if product is synced
+            if salla_product.salla_product_id:
+                sync_manager = ProductSyncManager()
+                item = frappe.get_doc("Item", new_name)
+                if sync_manager.should_sync(item) and sync_manager.should_sync_sku(item):
+                    payload = {
+                        "sku": new_name
+                    }
+                    print(f"Updating SKU in Salla for Item {new_name}")
+                    try:
+                        response = sync_manager.client.update_product(
+                            salla_product.salla_product_id,
+                            payload
+                        )
+                        print(f"Salla SKU Update Response for Item {new_name}:", response)
+                        if not response.get("success"):
+                            frappe.log_error(
+                                f"Failed to update SKU in Salla for Item {new_name}: {response.get('message')}",
+                                "Salla SKU Update Error"
+                            )
+                    except Exception as e:
+                        frappe.log_error(
+                            f"Exception while updating SKU in Salla for Item {new_name}: {str(e)}",
+                            "Salla SKU Update Exception"
+                        )
+        
+        
+        
+    
 
 
 # Convenience function for use in hooks
@@ -879,6 +939,14 @@ def sync_item_to_salla(doc, method=None):
     #     job_name=f"salla_sync_{item.item_code}"
     # )
 
+
+@frappe.whitelist()
+def sync_item_sku_on_rename(doc, method, old_name, new_name):
+    """Sync item SKU to Salla on item rename."""
+    sync_manager = ProductSyncManager()
+    sync_manager.handle_item_rename(doc, method, old_name, new_name)
+
+
 @frappe.whitelist()
 def link_existing_items_with_salla_products():
     """Link existing Items with Salla Products by SKU."""
@@ -891,6 +959,8 @@ def link_existing_items_with_salla_products():
             "Salla Product Link Error"
         )
     return result
+
+
 
 
 def _sync_item_background(item_code: str):
