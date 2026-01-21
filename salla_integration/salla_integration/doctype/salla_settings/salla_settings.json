@@ -5,21 +5,24 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "enabled",
   "store_name",
-  "company",
   "client_id",
   "client_secret",
   "access_token",
   "token_expires_at",
   "refresh_token",
   "webhook_secret",
+  "defaults_column",
   "enable_order_sync",
-  "enable_products_sync",
   "webhook_url",
-  "enabled",
+  "company",
   "default_warehouse",
   "secondary_warehouse",
-  "salla_order_status_after_submitting_delivery_note"
+  "salla_order_status_after_submitting_delivery_note",
+  "default_price_list",
+  "default_currency",
+  "default_taxes_and_charges"
  ],
  "fields": [
   {
@@ -68,23 +71,17 @@
    "reqd": 1
   },
   {
-   "default": "0",
-   "fieldname": "enable_products_sync",
-   "fieldtype": "Check",
-   "label": "Enable Products Sync",
-   "reqd": 1
-  },
-  {
    "fieldname": "company",
    "fieldtype": "Link",
-   "label": "Company",
+   "label": "Default Company",
    "options": "Company",
    "reqd": 1
   },
   {
    "fieldname": "webhook_url",
-   "fieldtype": "Read Only",
-   "label": "Webhook URL"
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "read_only": 1
   },
   {
    "fieldname": "token_expires_at",
@@ -114,16 +111,38 @@
    "fieldname": "salla_order_status_after_submitting_delivery_note",
    "fieldtype": "Link",
    "label": "Order Status After Submitting Delivery Note",
-   "options": "Salla Order Status",
-   "reqd": 1
+   "options": "Salla Order Status"
+  },
+  {
+   "fieldname": "defaults_column",
+   "fieldtype": "Column Break",
+   "label": "Defaults"
+  },
+  {
+   "fieldname": "default_price_list",
+   "fieldtype": "Link",
+   "label": "Default Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Price Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "default_taxes_and_charges",
+   "fieldtype": "Link",
+   "label": "Default Taxes and Charges",
+   "options": "Sales Taxes and Charges Template"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-19 12:17:50.313386",
- "modified_by": "Administrator",
+ "modified": "2026-01-21 16:52:59.889509",
+ "modified_by": "khalid.rashad.business@gmail.com",
  "module": "Salla Integration",
  "name": "Salla Settings",
  "owner": "Administrator",

@@ -5,7 +5,7 @@ frappe.ui.form.on("Salla Settings", {
   refresh(frm) {
     frm.add_custom_button("Connect Salla", () => {
       window.open(
-        "/api/method/salla_integration.api.oauth.start",
+        "/api/method/salla_integration.core.client.auth.start_oauth",
         "_blank"
       );
     });

@@ -56,7 +56,39 @@ def is_sync_enabled() -> bool:
     """
     settings = get_salla_settings()
     return bool(settings.enabled)
-    # return bool(settings.get_password("access_token"))
+
+
+def get_default_price_list() -> Optional[str]:
+    """
+    Get the default price list from Salla Settings.
+    
+    Returns:
+        Default price list name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_price_list if hasattr(settings, "default_price_list") else None
+
+
+def get_default_currency() -> Optional[str]:
+    """
+    Get the default currency from Salla Settings.
+    
+    Returns:
+        Default currency code or None
+    """
+    settings = get_salla_settings()
+    return settings.default_currency if hasattr(settings, "default_currency") else None
+
+
+def get_default_taxes_and_charges() -> Optional[str]:
+    """
+    Get the default taxes and charges template from Salla Settings.
+    
+    Returns:
+        Default taxes and charges template name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_taxes_and_charges if hasattr(settings, "default_taxes_and_charges") else None
 
 
 def get_item_stock(item_code: str) -> float:

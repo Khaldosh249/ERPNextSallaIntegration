@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
 # from salla_integration.synchronization.orders.status_mapper import map_salla_status_to_erpnext
-from salla_integration.core.utils.helpers import get_default_company, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse
+from salla_integration.core.utils.helpers import get_default_company, get_default_currency, get_default_price_list, get_default_taxes_and_charges, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse
 from salla_integration.synchronization.customers.sync_manager import CustomerSyncManager
 from salla_integration.synchronization.products.stock_sync import sync_stock_to_salla
 
@@ -143,6 +143,10 @@ class OrderSyncManager(BaseSyncManager):
         # Get order items from Salla Client
         items_data = self.client.get_order_items(order_data.get("id"))
         
+        default_price_list = get_default_price_list()
+        default_currency = get_default_currency()
+        default_taxes_and_charges_template = get_default_taxes_and_charges()
+        
         # Sales Order Data
         sales_order_data = {
             "doctype": "Sales Order",
@@ -153,8 +157,9 @@ class OrderSyncManager(BaseSyncManager):
             # Delivery after 7 days from order date
             "delivery_date": frappe.utils.add_days(frappe.utils.today(), 7),
             "items": self._build_order_items(items_data.get("data", [])),
-            "selling_price_list": "Standard Selling",
-            "price_list_currency": "INR",
+            "selling_price_list": default_price_list,
+            "price_list_currency": default_currency,
+            "taxes_and_charges": default_taxes_and_charges_template,
             "conversion_rate": 1,
             "plc_conversion_rate": 1,
         }
@@ -312,10 +317,12 @@ class OrderSyncManager(BaseSyncManager):
                 else:
                     selected_warehouse = default_warehouse  # Default to primary warehouse
                 
+                item_price = item_data.get("amounts", {}).get("original_price", {}).get("amount", 0)
+                
                 items.append({
                     "item_code": item_code,
                     "qty": allocated_qty,
-                    "rate": item_data.get("price", {}).get("amount", 0),
+                    "rate": item_price,
                     "warehouse": selected_warehouse
                 })
                 print(f"Added item: {item_code}, Qty: {allocated_qty}, Warehouse: {selected_warehouse}")
