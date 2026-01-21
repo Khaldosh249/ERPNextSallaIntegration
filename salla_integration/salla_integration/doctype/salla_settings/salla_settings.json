@@ -22,7 +22,9 @@
   "salla_order_status_after_submitting_delivery_note",
   "default_price_list",
   "default_currency",
-  "default_taxes_and_charges"
+  "default_taxes_and_charges",
+  "default_customer_group",
+  "default_territory"
  ],
  "fields": [
   {
@@ -135,13 +137,25 @@
    "fieldtype": "Link",
    "label": "Default Taxes and Charges",
    "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "default_customer_group",
+   "fieldtype": "Link",
+   "label": "Default Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "fieldname": "default_territory",
+   "fieldtype": "Link",
+   "label": "Default Territory",
+   "options": "Territory"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-21 16:52:59.889509",
+ "modified": "2026-01-21 17:39:32.900280",
  "modified_by": "khalid.rashad.business@gmail.com",
  "module": "Salla Integration",
  "name": "Salla Settings",

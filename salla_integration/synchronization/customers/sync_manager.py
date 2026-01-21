@@ -7,7 +7,7 @@ import frappe
 from typing import Dict, Any, Optional
 
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
-from salla_integration.core.utils.helpers import get_default_company
+from salla_integration.core.utils.helpers import get_default_company, get_default_customer_group, get_default_territory
 
 
 class CustomerSyncManager(BaseSyncManager):
@@ -158,12 +158,15 @@ class CustomerSyncManager(BaseSyncManager):
                 "customer": exists.name
             }
         
+        default_customer_group = get_default_customer_group()
+        default_territory = get_default_territory()
+        
         customer = frappe.get_doc({
             "doctype": "Customer",
             "customer_name": company_name or full_name,
             "customer_type": "Company",
-            "customer_group": "All Customer Groups",
-            "territory": "All Territories",
+            "customer_group": default_customer_group,
+            "territory": default_territory,
             "tax_id": tax_id,
             "company": get_default_company(),
             "custom_commercial_register": custom_commercial_register

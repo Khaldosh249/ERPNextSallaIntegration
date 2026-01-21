@@ -91,6 +91,28 @@ def get_default_taxes_and_charges() -> Optional[str]:
     return settings.default_taxes_and_charges if hasattr(settings, "default_taxes_and_charges") else None
 
 
+def get_default_customer_group() -> Optional[str]:
+    """
+    Get the default customer group from Salla Settings.
+    
+    Returns:
+        Default customer group name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_customer_group if hasattr(settings, "default_customer_group") else None
+
+
+def get_default_territory() -> Optional[str]:
+    """
+    Get the default territory from Salla Settings.
+    
+    Returns:
+        Default territory name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_territory if hasattr(settings, "default_territory") else None
+
+
 def get_item_stock(item_code: str) -> float:
     """
     Get the current stock quantity for an item.
