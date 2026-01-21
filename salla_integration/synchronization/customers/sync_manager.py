@@ -158,6 +158,36 @@ class CustomerSyncManager(BaseSyncManager):
                 "customer": exists.name
             }
         
+        if tax_id and tax_id not in [None, "", 0, "0", 1, "1"] and not exists:
+            exists = frappe.db.get_value(
+                "Customer",
+                {
+                    "tax_id": tax_id
+                },
+                as_dict=True
+            )
+            if exists:
+                print("Customer already exists with tax_id:", tax_id)
+                return {
+                    "status": "exists",
+                    "customer": exists.name
+                }
+        
+        if custom_commercial_register and custom_commercial_register not in [None, "", 0, "0", 1, "1"] and not exists:
+            exists = frappe.db.get_value(
+                "Customer",
+                {
+                    "custom_commercial_register": custom_commercial_register
+                },
+                as_dict=True
+            )
+            if exists:
+                print("Customer already exists with custom_commercial_register:", custom_commercial_register)
+                return {
+                    "status": "exists",
+                    "customer": exists.name
+                }
+        
         default_customer_group = get_default_customer_group()
         default_territory = get_default_territory()
         
