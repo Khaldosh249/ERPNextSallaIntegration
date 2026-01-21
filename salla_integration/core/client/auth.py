@@ -91,6 +91,7 @@ class SallaAuth:
                 },
                 timeout=20
             )
+            
             response.raise_for_status()
             token_data = response.json()
             self._save_tokens(token_data)
