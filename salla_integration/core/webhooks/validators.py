@@ -8,7 +8,7 @@ import frappe
 from typing import Dict, Optional
 
 
-def validate_webhook_signature(payload: Dict, signature: Optional[str]) -> bool:
+def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool:
     """
     Validate the webhook signature from Salla.
     
