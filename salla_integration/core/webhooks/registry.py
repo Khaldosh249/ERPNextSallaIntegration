@@ -77,6 +77,7 @@ def handle_webhook():
     
     print("Webhook received")
     
+    payload = frappe.request.get_json()
     raw_data = frappe.request.get_data()
     
     if not raw_data:
@@ -90,7 +91,8 @@ def handle_webhook():
     
     
     # Get request data
-    payload = frappe.parse_json(raw_data)
+    # payload = frappe.parse_json(raw_data)
+    
     
     
     # Get event type
