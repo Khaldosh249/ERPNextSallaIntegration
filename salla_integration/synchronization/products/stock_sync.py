@@ -98,8 +98,8 @@ def sync_stock_entry_items(stock_entry) -> List[Dict[str, Any]]:
             custom_sync_with_salla = frappe.db.get_value("Item", item.item_code, "custom_sync_with_salla")
             if custom_sync_stock and custom_sync_with_salla:
                 items_to_sync.add(item.item_code)
-                # Set item custom_sync_stock to "Not Synced" before syncing and salla_product stock_sync_status to "Not Synced"
-                frappe.db.set_value("Item", item.item_code, "custom_sync_stock", "Not Synced")
+                # Set item custom_stock_sync_status to "Not Synced" before syncing and salla_product stock_sync_status to "Not Synced"
+                frappe.db.set_value("Item", item.item_code, "custom_stock_sync_status", "Not Synced")
                 salla_product_name = frappe.db.get_value(
                     "Salla Product",
                     {"item_code": item.item_code},
