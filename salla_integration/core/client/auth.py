@@ -61,7 +61,7 @@ class SallaAuth:
         """Generate the OAuth authorization URL."""
         if not state:
             state = frappe.generate_hash(length=16)
-        
+        print(f"Redirect URl: {self.get_redirect_uri()}")
         params = {
             "client_id": self.client_id,
             "response_type": "code",
