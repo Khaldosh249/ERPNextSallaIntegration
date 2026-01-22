@@ -22,17 +22,10 @@ def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool
     if not signature:
         return False
     
+    
     settings = frappe.get_single("Salla Settings")
     webhook_secret = settings.get_password("webhook_secret") if hasattr(settings, "webhook_secret") else None
     
-    if not webhook_secret:
-        # If no webhook secret is configured, skip validation
-        # This allows for easier development but should be enforced in production
-        frappe.log_error(
-            "Webhook secret not configured. Signature validation skipped.",
-            "Salla Webhook Warning"
-        )
-        return True
     
     # Calculate expected signature
     expected_signature = hmac.new(
@@ -40,7 +33,6 @@ def validate_webhook_signature(payload: bytes, signature: Optional[str]) -> bool
         payload,
         hashlib.sha256
     ).hexdigest()
-    
     
     # Compare signatures using constant-time comparison
     return hmac.compare_digest(signature, expected_signature)
