@@ -73,9 +73,11 @@ class SallaAuth:
     
     def get_redirect_uri(self) -> str:
         """Get the OAuth callback redirect URI."""
-        return frappe.utils.get_url(
-            "/api/method/salla_integration.core.client.auth.oauth_callback"
-        )
+        url = frappe.utils.get_url()
+        # Force HTTPS protocol
+        if url.startswith("http://"):
+            url = url.replace("http://", "https://", 1)
+        return url + "/api/method/salla_integration.core.client.auth.oauth_callback"
     
     def exchange_code_for_tokens(self, code: str) -> dict:
         """Exchange authorization code for access and refresh tokens."""
