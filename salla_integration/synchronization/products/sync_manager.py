@@ -7,7 +7,7 @@ import frappe
 from typing import Dict, Any, Optional, List
 
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
-from salla_integration.synchronization.products.image_sync import sync_product_images
+from salla_integration.synchronization.products.image_sync import add_skipped_images, sync_product_images
 from salla_integration.synchronization.products.payload_builder import ProductPayloadBuilder, ProductPayloadBuilderEn
 from salla_integration.core.client.exceptions import SallaNotFoundError
 from salla_integration.models.mappers.product_mapper import ProductMapper
@@ -335,6 +335,8 @@ class ProductSyncManager(BaseSyncManager):
         print("Starting image sync for item:", item.item_code)
         if not item.custom_sync_images:
             print("Image sync not enabled for item:", item.item_code)
+            print("Skipping image sync for item:", item.item_code)
+            add_skipped_images(item.item_code, salla_product_id)
             return {"status": "skipped", "message": "Image sync not enabled for this item"}
         
         return sync_product_images(item.item_code, salla_product_id)
@@ -669,25 +671,51 @@ class ProductSyncManager(BaseSyncManager):
                     sku = product_data.get("sku")
                     if not sku:
                         continue
+                    
                     # Check if Item exists
                     existing_item = frappe.db.exists("Item", sku)
                     if not existing_item:
                         continue
+                    
                     # Check if Salla Product record already exists
                     existing_salla_product = frappe.db.get_value(
                         "Salla Product",
                         {"salla_product_id": str(product_data.get("id"))},
                         "name"
                     )
-                    if existing_salla_product:
-                        continue
+                    
                     # Create Salla Product record
-                    self._create_salla_product_record(
+                    if not existing_salla_product:
+                        self._create_salla_product_record(
                         item_code=sku,
                         salla_product_id=str(product_data.get("id"))
-                    )
+                        )
+                        linked += 1
                     
-                    linked += 1
+                    # Update custom_open_public_page_in_salla and custom_open_admin_page_in_salla fields in Item
+                    
+                    custom_open_public_page_in_salla = product_data.get("urls", {}).get("customer", "")
+                    custom_open_admin_page_in_salla = product_data.get("urls", {}).get("admin", "")
+                    
+                    if custom_open_public_page_in_salla:
+                        frappe.db.set_value(
+                            "Item",
+                            sku,
+                            "custom_open_public_page_in_salla",
+                            custom_open_public_page_in_salla
+                        )
+                    
+                    if custom_open_admin_page_in_salla:
+                        frappe.db.set_value(
+                            "Item",
+                            sku,
+                            "custom_open_admin_page_in_salla",
+                            custom_open_admin_page_in_salla
+                        )
+                    
+                    print(f"Linked Salla product ID {product_data.get('id')} to Item {sku}")
+                    
+                    frappe.db.commit()
                     
                 
                 # Check pagination
