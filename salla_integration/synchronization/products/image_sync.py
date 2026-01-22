@@ -74,8 +74,7 @@ def sync_product_images(item_code: str, salla_product_id: str) -> dict:
         for url in image_variance["unchanged"]:
             last_synced_images = frappe.parse_json(salla_product_doc.get("images_variance") or "{}")
             image_id = last_synced_images.get(url)
-            if image_id:
-                new_variance[url] = image_id
+            new_variance[url] = image_id
         
         # Update the Salla Product doc with new variance
         salla_product = frappe.get_doc("Salla Product", salla_product_doc.name)
@@ -181,6 +180,54 @@ def get_image_variance(item, salla_product_doc) -> dict:
         "unchanged": unchanged
     }
 
+
+
+def add_skipped_images(item_code: str, salla_product_id: str):
+    """
+    Mark images as added without actual sync.
+    
+    Args:
+        item_code: The ERPNext item code
+        salla_product_id: The Salla product ID
+    """
+    
+    salla_product_doc = frappe.db.get_value(
+        "Salla Product",
+        {"item_code": item_code},
+        ["name", "salla_product_id"],
+        as_dict=True
+    )
+    
+    if not salla_product_doc:
+        return
+    salla_product = frappe.get_doc("Salla Product", salla_product_doc.name)
+    
+    item = frappe.get_doc("Item", item_code)
+    current_images = get_item_image_paths(item)
+    new_variance = {}
+    last_synced_images = frappe.parse_json(salla_product.get("images_variance") or "{}")
+    
+    last_synced_images_set = set(last_synced_images.keys())
+    
+    # Mark all current images as unchanged if they were previously synced
+    for url in current_images:
+        if url in last_synced_images_set:
+            new_variance[url] = last_synced_images[url]
+        else:
+            new_variance[url] = None  # No image ID since not synced
+    
+    salla_product.images_variance = new_variance
+    salla_product.image_sync_status = "Synced"
+    salla_product.save(ignore_permissions=True)
+    print("Setting Item image_sync_status to Synced for", item_code)
+    frappe.db.set_value(
+        "Item",
+        item_code,
+        {"custom_images_sync_status": "Synced"}
+    )
+    frappe.db.commit()
+    
+    
 
 
 
