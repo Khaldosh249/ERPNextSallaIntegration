@@ -176,8 +176,6 @@ class OrderSyncManager(BaseSyncManager):
         
         print(f"Created Sales Order: {sales_order.name}")
         
-        print("Submitting Sales Order...")
-        sales_order.submit()
         
         # Create Salla Order record
         salla_order = frappe.get_doc({
