@@ -6,6 +6,7 @@ Handles syncing products between ERPNext Items and Salla Products.
 import frappe
 from typing import Dict, Any, Optional, List
 
+from salla_integration.core.utils.helpers import get_price_list_for_importing_prices_from_salla
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
 from salla_integration.synchronization.products.image_sync import add_skipped_images, sync_product_images
 from salla_integration.synchronization.products.payload_builder import ProductPayloadBuilder, ProductPayloadBuilderEn
@@ -742,6 +743,119 @@ class ProductSyncManager(BaseSyncManager):
             }
     
     
+    # Import prices from salla to default_price_list_for_importing_prices_from_salla
+    def import_products_prices_from_salla(self, page: int = 1, per_page: int = 50) -> Dict[str, Any]:
+        """
+        Import product prices from Salla to ERPNext.
+        Args:
+            page: Page number to start from
+            per_page: Products per page
+        Returns:
+            Result dict with counts
+        """
+        try:
+            default_price_list = get_price_list_for_importing_prices_from_salla()
+            current_page = page
+            has_more = True
+            updated_prices = 0
+            total_processed = 0
+            
+            while has_more:
+                # Fetch products from Salla
+                params = {
+                    "page": current_page,
+                    "per_page": per_page
+                }
+                
+                response = self.client.get_products(params=params)
+                
+                if not response.get("success"):
+                    return {
+                        "status": "error",
+                        "message": response.get("message", "Failed to fetch products"),
+                        "updated_prices": updated_prices
+                    }
+                
+                products = response.get("data", [])
+                
+                if not products:
+                    has_more = False
+                    break
+                
+                for product_data in products:
+                    total_processed += 1
+                    
+                    sku = product_data.get("sku")
+                    price = product_data.get("price", {})
+                    amount = price.get("amount")
+                    currency = price.get("currency")
+                    
+                    if not sku:
+                        continue
+                    
+                    existing_item = frappe.db.exists("Item", sku)
+                    if not existing_item:
+                        continue
+                    
+                    print(f"Updating price for Item {sku} to {amount} {currency}")
+                    
+                    # frappe.db.set_value(
+                    #     "Item Price",
+                    #     {"item_code": sku, "price_list": default_price_list},
+                    #     "price_list_rate",
+                    #     amount
+                    # )
+                    
+                    # if Item Price record does not exist, create it
+                    item_price_name = frappe.db.get_value(
+                        "Item Price",
+                        {"item_code": sku, "price_list": default_price_list},
+                        "name"
+                    )
+                    if not item_price_name:
+                        item_price_doc = frappe.get_doc({
+                            "doctype": "Item Price",
+                            "item_code": sku,
+                            "price_list": default_price_list,
+                            "price_list_rate": amount
+                        })
+                        item_price_doc.insert(ignore_permissions=True)
+                    else:
+                        frappe.db.set_value(
+                            "Item Price",
+                            item_price_name,
+                            "price_list_rate",
+                            amount
+                        )
+                    
+                    updated_prices += 1
+                    print(f"Updated price for Item {sku} to {amount} {currency}")
+                    
+                    frappe.db.commit()
+                
+                # Check pagination
+                pagination = response.get("pagination", {})
+                total_pages = pagination.get("totalPages", 1)
+                
+                if current_page >= total_pages:
+                    has_more = False
+                else:
+                    current_page += 1
+            
+            return {
+                "status": "success",
+                "updated_prices": updated_prices,
+                "total_processed": total_processed
+            }
+        except Exception as e:
+            frappe.log_error(f"Error importing product prices from Salla: {e}")
+            return {
+                "status": "error",
+                "message": str(e),
+                "updated_prices": updated_prices if 'updated_prices' in dir() else 0
+            }
+    
+    
     def import_single_product(self, salla_product_id: str) -> Dict[str, Any]:
         """
         Import a single product from Salla by ID.
@@ -988,6 +1102,21 @@ def link_existing_items_with_salla_products():
         )
     return result
 
+
+@frappe.whitelist()
+def import_products_prices_from_salla():
+    """Import product prices from Salla to ERPNext."""
+    print("Starting import of product prices from Salla...")
+    sync_manager = ProductSyncManager()
+    result = sync_manager.import_products_prices_from_salla(page=1, per_page=50)
+    
+    
+    if result["status"] == "error":
+        frappe.log_error(
+            f"Failed to import product prices from Salla: {result.get('message')}",
+            "Salla Product Price Import Error"
+        )
+    return result
 
 
 

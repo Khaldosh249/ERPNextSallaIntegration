@@ -1,5 +1,7 @@
 import frappe
 
+from salla_integration.core.utils.helpers import get_default_price_list, get_item_price
+
 
 def build_salla_product_payload(item):
     
@@ -14,11 +16,7 @@ def build_salla_product_payload(item):
     if item.custom_sync_price:
         # payload["price"] = item.standard_rate
         # Getting price from Item Price doctype
-        price_list_rate = frappe.db.get_value(
-            "Item Price",
-            {"item_code": item.item_code, "price_list": "Standard Selling"},
-            "price_list_rate"
-        )
+        price_list_rate = get_item_price(item.item_code)
         if price_list_rate is not None:
             payload["price"] = price_list_rate
     

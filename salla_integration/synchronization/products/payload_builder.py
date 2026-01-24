@@ -5,6 +5,7 @@ Product payload builder for Salla API.
 import frappe
 from typing import Dict, Any, List
 
+from salla_integration.core.utils.helpers import get_default_price_list, get_item_price
 from salla_integration.synchronization.base.payload_builder import BasePayloadBuilder
 
 
@@ -74,11 +75,7 @@ class ProductPayloadBuilder(BasePayloadBuilder):
     
     def _get_item_price(self) -> float:
         """Get the item price from Item Price doctype."""
-        price = frappe.db.get_value(
-            "Item Price",
-            {"item_code": self.doc.item_code, "price_list": "Standard Selling"},
-            "price_list_rate"
-        )
+        price = get_item_price(self.doc.item_code)
         return price
     
     def _get_category_ids(self) -> List[int]:
@@ -128,7 +125,7 @@ class ProductPayloadBuilderEn(ProductPayloadBuilder):
     
     def add_name(self) -> "ProductPayloadBuilderEn":
         """Add product name to payload."""
-        self.payload["name"] = self.doc.custom_item_name_english
+        self.payload["name"] = self.doc.item_name_in_english_cf
         return self
     
     def add_description(self) -> "ProductPayloadBuilderEn":
