@@ -5,6 +5,7 @@ Order webhook handlers for Salla.
 import frappe
 from salla_integration.core.webhooks.registry import WebhookRegistry
 from salla_integration.synchronization.orders.sync_manager import OrderSyncManager
+from salla_integration.core.utils.helpers import is_incoming_orders_sync_enabled
 
 @WebhookRegistry.register("order.created")
 def handle_order_created(payload: dict):
@@ -14,6 +15,10 @@ def handle_order_created(payload: dict):
     order_data = payload.get("data", {})
     if not order_data:
         frappe.log_error("No order data in webhook payload", "Salla Webhook Error")
+        return
+    
+    if not is_incoming_orders_sync_enabled():
+        frappe.log_message("Incoming order sync is disabled in Salla Settings.", "Salla Webhook Info")
         return
     
     sync_manager = OrderSyncManager()
