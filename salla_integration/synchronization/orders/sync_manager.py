@@ -162,6 +162,7 @@ class OrderSyncManager(BaseSyncManager):
             "price_list_currency": default_currency,
             "taxes_and_charges": default_taxes_and_charges_template,
             "taxes": default_taxes,
+            "custom_delivery_location_الموقع_التوريد_": deliverable_address,
             "conversion_rate": 1,
             "plc_conversion_rate": 1,
         }
