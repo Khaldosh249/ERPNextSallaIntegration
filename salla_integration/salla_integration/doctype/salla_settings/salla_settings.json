@@ -24,7 +24,8 @@
   "default_currency",
   "default_taxes_and_charges",
   "default_customer_group",
-  "default_territory"
+  "default_territory",
+  "default_price_list_for_importing_prices_from_salla"
  ],
  "fields": [
   {
@@ -149,13 +150,19 @@
    "fieldtype": "Link",
    "label": "Default Territory",
    "options": "Territory"
+  },
+  {
+   "fieldname": "default_price_list_for_importing_prices_from_salla",
+   "fieldtype": "Link",
+   "label": "Default Price List For Importing Prices from Salla",
+   "options": "Price List"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-21 17:39:32.900280",
+ "modified": "2026-01-24 15:32:21.699793",
  "modified_by": "khalid.rashad.business@gmail.com",
  "module": "Salla Integration",
  "name": "Salla Settings",

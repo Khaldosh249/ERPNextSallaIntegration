@@ -176,6 +176,12 @@ fixtures = [
             
         ]
     },
+    {
+        "dt": "Client Script",
+        "filters": [
+            ["name", "like", "Hide%"],
+        ]
+    },
 ]
 
 # Scheduled Tasks

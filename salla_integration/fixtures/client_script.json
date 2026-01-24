@@ -1,0 +1,13 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Item",
+  "enabled": 1,
+  "modified": "2026-01-24 21:34:17.582194",
+  "module": "Salla Integration",
+  "name": "Hide Salla Setting for new items",
+  "script": "frappe.ui.form.on('Item', {\n\trefresh(frm) {\n\tif (frm.is_new()) {\n            frm.set_df_property('custom_sync_with_salla', 'hidden', 1);\n        } else {\n            frm.set_df_property('custom_sync_with_salla', 'hidden', 0);\n        }\n\t}\n})",
+  "view": "Form"
+ }
+]
