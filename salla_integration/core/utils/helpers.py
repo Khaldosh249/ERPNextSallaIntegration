@@ -58,6 +58,17 @@ def is_sync_enabled() -> bool:
     return bool(settings.enabled)
 
 
+def is_incoming_orders_sync_enabled() -> bool:
+    """
+    Check if incoming orders synchronization from Salla is enabled.
+    
+    Returns:
+        True if incoming orders sync is enabled, False otherwise
+    """
+    settings = get_salla_settings()
+    return bool(settings.enable_order_sync)
+
+
 def get_default_price_list() -> Optional[str]:
     """
     Get the default price list from Salla Settings.
@@ -67,6 +78,17 @@ def get_default_price_list() -> Optional[str]:
     """
     settings = get_salla_settings()
     return settings.default_price_list if hasattr(settings, "default_price_list") else None
+
+
+def get_price_list_for_importing_prices_from_salla() -> Optional[str]:
+    """
+    Get the price list for importing prices from Salla Settings.
+    
+    Returns:
+        Price list name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_price_list_for_importing_prices_from_salla if hasattr(settings, "default_price_list_for_importing_prices_from_salla") else None
 
 
 def get_default_currency() -> Optional[str]:
@@ -166,7 +188,7 @@ def get_item_stock_in_warehouse(item_code: str, warehouse: str) -> float:
     return bin_doc.actual_qty if bin_doc else 0
 
 
-def get_item_price(item_code: str, price_list: str = "Standard Selling") -> Optional[float]:
+def get_item_price(item_code: str) -> Optional[float]:
     """
     Get the price for an item from the specified price list.
     
@@ -177,6 +199,7 @@ def get_item_price(item_code: str, price_list: str = "Standard Selling") -> Opti
     Returns:
         Item price or None
     """
+    price_list = get_default_price_list()
     price = frappe.db.get_value(
         "Item Price",
         {"item_code": item_code, "price_list": price_list},
