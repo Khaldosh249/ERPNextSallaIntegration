@@ -78,48 +78,35 @@ frappe.ui.form.on("Salla Settings", {
 
     // Add a button to import product prices from Salla
     frm.add_custom_button(__("Import Product Prices from Salla"), () => {
-      frappe.call({
-        method: "salla_integration.synchronization.products.sync_manager.import_products_prices_from_salla",
-        args: {},
-        freeze: true,
-        freeze_message: __("Importing product prices..."),
-        callback: function (r) {
-          if (r.message) {
-            if(r.message.status == "success"){
-              frappe.msgprint({
-                title: __("Price Import Completed"),
-                message: `Product price import completed. Total Prices updated: ${r.message.updated_prices}.`,
-                indicator: "green"
-              });
-            } else {
-              frappe.msgprint({
-                title: __("Error"),
-                message: r.message.message || __("Unknown error occurred"),
-                indicator: "red"
-              });
-            }
-          }
-        },
-      });
+      frappe.confirm(
+        __("This will import product prices from Salla and update existing Item Prices in ERPNext based on SKU. Continue?"),
+        () => {
+          frappe.call({
+            method: "salla_integration.synchronization.products.sync_manager.import_products_prices_from_salla",
+            args: {},
+            freeze: true,
+            freeze_message: __("Importing product prices..."),
+            callback: function (r) {
+              if (r.message) {
+                if(r.message.status == "success"){
+                  frappe.msgprint({
+                    title: __("Price Import Completed"),
+                    message: `Product price import completed. Total Prices updated: ${r.message.updated_prices}.`,
+                    indicator: "green"
+                  });
+                } else {
+                  frappe.msgprint({
+                    title: __("Error"),
+                    message: r.message.message || __("Unknown error occurred"),
+                    indicator: "red"
+                  });
+                }
+              }
+            },
+          });
+        }
+      );
     }, __("Sync"));
-
-    // Add a button to sync categories from Salla
-    frm.add_custom_button(__("Sync Categories from Salla"), () => {
-      frappe.call({
-        method: "salla_integration.synchronization.categories.sync_manager.sync_all_categories_from_salla",
-        args: {},
-        freeze: true,
-        freeze_message: __("Syncing categories..."),
-        callback: function (r) {
-          if (r.message) {
-            frappe.msgprint({
-              title: __("Category Sync"),
-              message: __("Category synchronization completed."),
-              indicator: "green"
-            });
-          }
-        },
-      });
-    }, __("Sync"));
+    
   }
 });
