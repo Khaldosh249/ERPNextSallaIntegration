@@ -68,13 +68,6 @@
    "label": "Is Active"
   },
   {
-   "default": "0",
-   "fieldname": "is_group",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Is Group"
-  },
-  {
    "fieldname": "salla_category_id",
    "fieldtype": "Data",
    "label": "Salla Category ID",
