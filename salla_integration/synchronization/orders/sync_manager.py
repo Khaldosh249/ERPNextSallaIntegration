@@ -141,7 +141,9 @@ class OrderSyncManager(BaseSyncManager):
         print(f"Creating Sales Order for customer: {customer} in company: {company}")
         
         # Get order items from Salla Client
-        items_data = self.client.get_order_items(order_data.get("id"))
+        # items_data = self.client.get_order_items(order_data.get("id"))
+        items_data = order_data.get("items", {})
+        parsed_items = self._build_order_items(items_data)
         
         default_price_list = get_default_price_list()
         default_currency = get_default_currency()
@@ -162,7 +164,7 @@ class OrderSyncManager(BaseSyncManager):
             "transaction_date": frappe.utils.today(),
             # Delivery after 7 days from order date
             "delivery_date": frappe.utils.add_days(frappe.utils.today(), 7),
-            "items": self._build_order_items(items_data.get("data", [])),
+            "items": parsed_items,
             "selling_price_list": default_price_list,
             "price_list_currency": default_currency,
             "taxes_and_charges": default_taxes_and_charges_template,
@@ -297,9 +299,10 @@ class OrderSyncManager(BaseSyncManager):
             
             if not item_code:
                 # Try to find by Salla Product
+                salla_product_id = str(item_data.get("product", {}).get("id", ""))
                 item_code = frappe.db.get_value(
                     "Salla Product",
-                    {"salla_product_id": str(item_data.get("product_id", ""))},
+                    {"salla_product_id": salla_product_id},
                     "item_code"
                 )
             
@@ -326,7 +329,7 @@ class OrderSyncManager(BaseSyncManager):
                 else:
                     selected_warehouse = default_warehouse  # Default to primary warehouse
                 
-                item_price = item_data.get("amounts", {}).get("original_price", {}).get("amount", 0)
+                item_price = item_data.get("amounts", {}).get("price_without_tax", {}).get("amount", 0)
                 
                 items.append({
                     "item_code": item_code,
