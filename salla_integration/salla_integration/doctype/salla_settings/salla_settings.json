@@ -25,7 +25,9 @@
   "default_taxes_and_charges",
   "default_customer_group",
   "default_territory",
-  "default_price_list_for_importing_prices_from_salla"
+  "default_price_list_for_importing_prices_from_salla",
+  "default_price_list_for_salla_discounts",
+  "default_order_type_for_incoming_orders"
  ],
  "fields": [
   {
@@ -156,13 +158,25 @@
    "fieldtype": "Link",
    "label": "Default Price List For Importing Prices from Salla",
    "options": "Price List"
+  },
+  {
+   "fieldname": "default_price_list_for_salla_discounts",
+   "fieldtype": "Link",
+   "label": "Default Price List for Salla Discounts",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "default_order_type_for_incoming_orders",
+   "fieldtype": "Select",
+   "label": "Default Order Type for Incoming Orders",
+   "options": "\nSales\nMaintenance\nShopping Cart"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-24 15:32:21.699793",
+ "modified": "2026-02-02 09:50:17.500046",
  "modified_by": "khalid.rashad.business@gmail.com",
  "module": "Salla Integration",
  "name": "Salla Settings",

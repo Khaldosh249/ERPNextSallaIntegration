@@ -91,6 +91,38 @@ def get_price_list_for_importing_prices_from_salla() -> Optional[str]:
     return settings.default_price_list_for_importing_prices_from_salla if hasattr(settings, "default_price_list_for_importing_prices_from_salla") else None
 
 
+def get_price_list_for_salla_price_sync() -> Optional[str]:
+    """
+    Get the price list for Salla price synchronization from Salla Settings.
+    
+    Returns:
+        Price list name or None
+    """
+    # settings = get_salla_settings()
+    # return settings.price_list_for_salla_price_sync if hasattr(settings, "price_list_for_salla_price_sync") else None
+    return get_price_list_for_importing_prices_from_salla()
+
+def get_default_price_list_for_salla_discounts() -> Optional[str]:
+    """
+    Get the default price list for Salla discounts from Salla Settings.
+    
+    Returns:
+        Price list name or None
+    """
+    settings = get_salla_settings()
+    return settings.default_price_list_for_salla_discounts if hasattr(settings, "default_price_list_for_salla_discounts") else None
+
+
+def get_default_order_type_for_incoming_orders() -> Optional[str]:
+    """
+    Get the default order type for incoming orders from Salla Settings.
+    
+    Returns:
+        Default order type or None
+    """
+    settings = get_salla_settings()
+    return settings.default_order_type_for_incoming_orders if hasattr(settings, "default_order_type_for_incoming_orders") else None
+
 def get_default_currency() -> Optional[str]:
     """
     Get the default currency from Salla Settings.
