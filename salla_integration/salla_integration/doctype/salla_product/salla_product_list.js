@@ -1,6 +1,3 @@
-frappe.listview_settings['Salla Product'] = {
-    onload: function(listview) {
-        
-        
-    }
+frappe.listview_settings["Salla Product"] = {
+	onload: function (listview) {},
 };
