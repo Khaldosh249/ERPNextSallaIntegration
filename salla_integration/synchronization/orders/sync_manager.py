@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
 # from salla_integration.synchronization.orders.status_mapper import map_salla_status_to_erpnext
-from salla_integration.core.utils.helpers import get_default_company, get_default_currency, get_default_price_list, get_default_taxes_and_charges, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse, get_taxes_from_sales_taxes_template
+from salla_integration.core.utils.helpers import get_default_company, get_default_currency, get_default_order_type_for_incoming_orders, get_default_price_list, get_default_taxes_and_charges, get_default_warehouse, get_order_status_after_deivery_note_submission, get_secondary_warehouse, get_item_stock_in_warehouse, get_taxes_from_sales_taxes_template
 from salla_integration.synchronization.customers.sync_manager import CustomerSyncManager
 from salla_integration.synchronization.products.stock_sync import sync_stock_to_salla
 
@@ -147,13 +147,18 @@ class OrderSyncManager(BaseSyncManager):
         default_currency = get_default_currency()
         default_taxes_and_charges_template = get_default_taxes_and_charges()
         default_taxes = get_taxes_from_sales_taxes_template(default_taxes_and_charges_template) if default_taxes_and_charges_template else []
+        default_order_type_for_incoming_orders = get_default_order_type_for_incoming_orders()
+        if default_order_type_for_incoming_orders:
+            order_type = default_order_type_for_incoming_orders
+        else:
+            order_type = "Sales"
         
         # Sales Order Data
         sales_order_data = {
             "doctype": "Sales Order",
             "customer": customer,
             "company": company,
-            "order_type": "Sales",
+            "order_type": order_type,
             "transaction_date": frappe.utils.today(),
             # Delivery after 7 days from order date
             "delivery_date": frappe.utils.add_days(frappe.utils.today(), 7),
@@ -176,6 +181,9 @@ class OrderSyncManager(BaseSyncManager):
         sales_order.insert(ignore_permissions=True)
         
         print(f"Created Sales Order: {sales_order.name}")
+        
+        # Submit Sales Order if needed
+        sales_order.submit()
         
         
         # Create Salla Order record
