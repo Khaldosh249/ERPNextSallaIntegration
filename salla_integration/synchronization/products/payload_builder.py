@@ -36,6 +36,9 @@ class ProductPayloadBuilder(BasePayloadBuilder):
         # if getattr(item, "custom_sync_sku", False):
         #     self.add_sku()
         
+        if getattr(item, "custom_sync_weight", False):
+            self.add_weight()
+        
         if getattr(item, "custom_sync_categories", False):
             self.add_categories()
         
@@ -59,6 +62,15 @@ class ProductPayloadBuilder(BasePayloadBuilder):
         price = self._get_item_price()
         if price is not None:
             self.payload["price"] = price
+        return self
+    
+    def add_weight(self) -> "ProductPayloadBuilder":
+        """Add product weight and UOM to payload."""
+        weight = self.doc.weight_per_unit or 0.0
+        weight_uom = self.doc.weight_uom or "kg"
+        self.payload["weight"] = weight
+        self.payload["weight_unit"] = weight_uom
+        print(f"Adding weight: {weight} {weight_uom}")
         return self
     
     # def add_sku(self) -> "ProductPayloadBuilder":
@@ -125,7 +137,8 @@ class ProductPayloadBuilderEn(ProductPayloadBuilder):
     
     def add_name(self) -> "ProductPayloadBuilderEn":
         """Add product name to payload."""
-        self.payload["name"] = self.doc.custom_item_name_english
+        # self.payload["name"] = self.doc.custom_item_name_english
+        self.payload["name"] = self.doc.item_name_in_english_cf
         return self
     
     def add_description(self) -> "ProductPayloadBuilderEn":

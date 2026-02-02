@@ -6,7 +6,7 @@ Handles syncing products between ERPNext Items and Salla Products.
 import frappe
 from typing import Dict, Any, Optional, List
 
-from salla_integration.core.utils.helpers import get_price_list_for_importing_prices_from_salla
+from salla_integration.core.utils.helpers import get_default_price_list_for_salla_discounts, get_price_list_for_importing_prices_from_salla
 from salla_integration.synchronization.base.sync_manager import BaseSyncManager
 from salla_integration.synchronization.products.image_sync import add_skipped_images, sync_product_images
 from salla_integration.synchronization.products.payload_builder import ProductPayloadBuilder, ProductPayloadBuilderEn
@@ -31,6 +31,7 @@ class ProductSyncManager(BaseSyncManager):
         for each field separately:
         - custom_name_sync_status
         - custom_description_sync_status
+        - custom_weight_sync_status
         - custom_price_sync_status
         - custom_sku_sync_status
         - custom_categories_sync_status
@@ -66,6 +67,7 @@ class ProductSyncManager(BaseSyncManager):
         Payload sync:
             - Name
             - Description
+            - Weight
             - Price
             - Categories
             
@@ -181,6 +183,7 @@ class ProductSyncManager(BaseSyncManager):
             salla_product.sync_status = "Pending"
             salla_product.item_name_sync_status = "Not Synced"
             salla_product.description_sync_status = "Not Synced"
+            salla_product.weight_sync_status = "Not Synced"
             salla_product.price_sync_status = "Not Synced"
             salla_product.sku_sync_status = "Not Synced"
             salla_product.categories_sync_status = "Not Synced"
@@ -193,6 +196,7 @@ class ProductSyncManager(BaseSyncManager):
                 {
                     "custom_name_sync_status": "Not Synced",
                     "custom_description_sync_status": "Not Synced",
+                    "custom_weight_sync_status": "Not Synced",
                     "custom_price_sync_status": "Not Synced",
                     "custom_sku_sync_status": "Not Synced",
                     "custom_categories_sync_status": "Not Synced",
@@ -220,6 +224,16 @@ class ProductSyncManager(BaseSyncManager):
                 item_code,
                 {
                     "custom_description_sync_status": "Not Synced"
+                }
+            )
+        
+        if item.custom_sync_weight:
+            salla_product.weight_sync_status = "Not Synced"
+            frappe.db.set_value(
+                "Item",
+                item_code,
+                {
+                    "custom_weight_sync_status": "Not Synced"
                 }
             )
         
@@ -282,6 +296,16 @@ class ProductSyncManager(BaseSyncManager):
                 item_code,
                 {
                     "custom_description_sync_status": status
+                }
+            )
+        
+        if item.custom_sync_weight:
+            salla_product.weight_sync_status = status
+            frappe.db.set_value(
+                "Item",
+                item_code,
+                {
+                    "custom_weight_sync_status": status
                 }
             )
         
@@ -1046,6 +1070,69 @@ class ProductSyncManager(BaseSyncManager):
                         )
         
         
+    
+    def handle_item_price_discount_change(self, doc, method):
+        """Handle changes in Item Price discounts.
+        Sync the discount to Salla if applicable.
+        """
+        item_code = doc.item_code
+        item = frappe.get_doc("Item", item_code)
+        
+        if not self.should_sync(item):
+            return
+        
+        salla_product_id = self._get_salla_product_id(item_code)
+        if not salla_product_id:
+            
+            # Get Salla product ID from Salla API by SKU
+            response = self.client.get_products(params={"sku": item_code})
+            if response.get("success") and response.get("data"):
+                salla_product = response["data"][0]
+                salla_product_id = str(salla_product.get("id"))
+                
+                # Create Salla Product record
+                self._create_salla_product_record(
+                    item_code=item_code,
+                    salla_product_id=salla_product_id
+                )
+            else:
+                return
+        # Build payload for discount
+        
+        discount_price_list = get_default_price_list_for_salla_discounts()
+        
+        item_price = frappe.get_doc("Item Price", doc.name)
+        
+        if item_price.price_list != discount_price_list:
+            return
+        
+        sales_start = item_price.valid_from
+        sales_end = item_price.valid_upto
+        sales_price = item_price.price_list_rate
+        payload = {
+            "sale_price": sales_price,
+            "sale_start": sales_start.strftime("%Y-%m-%d") if sales_start else None,
+            "sale_end": sales_end.strftime("%Y-%m-%d") if sales_end else None
+        }
+        print(f"Updating discount in Salla for Item {item_code} with payload: {payload}")
+        try:
+            response = self.client.update_product(
+                salla_product_id,
+                payload
+            )
+            print(f"Salla Discount Update Response for Item {item_code}:", response)
+            if not response.get("success"):
+                frappe.log_error(
+                    f"Failed to update discount in Salla for Item {item_code}: {response.get('message')}",
+                    "Salla Discount Update Error"
+                )
+        except Exception as e:
+            frappe.log_error(
+                f"Exception while updating discount in Salla for Item {item_code}: {str(e)}",
+                "Salla Discount Update Exception"
+            )
+            
+        
         
     
 
@@ -1080,6 +1167,15 @@ def sync_item_to_salla(doc, method=None):
     #     queue="default",
     #     job_name=f"salla_sync_{item.item_code}"
     # )
+
+
+
+@frappe.whitelist()
+def sync_item_discount_on_item_price_change(doc, method):
+    """Sync item discount to Salla on item price change."""
+    sync_manager = ProductSyncManager()
+    sync_manager.handle_item_price_discount_change(doc, method)
+    return 
 
 
 @frappe.whitelist()

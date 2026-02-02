@@ -4,8 +4,8 @@ Handles ERPNext Item hooks for Salla sync.
 """
 
 import frappe
-from salla_integration.core.utils.helpers import get_salla_settings
-from salla_integration.synchronization.products.sync_manager import sync_item_sku_on_rename, sync_item_to_salla
+from salla_integration.core.utils.helpers import get_default_price_list_for_salla_discounts, get_price_list_for_salla_price_sync, get_salla_settings
+from salla_integration.synchronization.products.sync_manager import sync_item_discount_on_item_price_change, sync_item_sku_on_rename, sync_item_to_salla
 
 # Done
 def on_item_update(doc, method=None):
@@ -122,17 +122,29 @@ def on_item_price_update(doc, method=None):
     if not settings or not settings.enabled:
         return
     
+    default_price_list_for_salla_discounts = get_default_price_list_for_salla_discounts()
+    default_salla_price_list = get_price_list_for_salla_price_sync()
+    
+    if doc.price_list != default_price_list_for_salla_discounts and doc.price_list != default_salla_price_list:
+        return # Not the price list we sync with Salla
+    print("Enqueueing Salla sync for Item Price update:", doc.name)
+    
     # Get Item document
     item = frappe.get_doc("Item", doc.item_code)
     
-    # sync_item_to_salla(item, method="price_update")
-    
-    frappe.enqueue(
-        "salla_integration.synchronization.products.sync_manager.sync_item_to_salla",
-        doc=item,
-        queue="short",
-        job_name=f"salla_price_update_{item.name}"
-    )
+    if doc.price_list == default_price_list_for_salla_discounts:
+        print(f"Item Price update in default Salla Discounts price list: {doc.price_list}")
+        sync_item_discount_on_item_price_change(doc, method)
+        
+    elif doc.price_list == default_salla_price_list:
+        print(f"Item Price update in default Salla Price Sync price list: {doc.price_list}")
+        # sync_item_to_salla(item, method="price_update")
+        frappe.enqueue(
+            "salla_integration.synchronization.products.sync_manager.sync_item_to_salla",
+            doc=item,
+            queue="short",
+            job_name=f"salla_price_update_{item.name}"
+        )
     
 
 
