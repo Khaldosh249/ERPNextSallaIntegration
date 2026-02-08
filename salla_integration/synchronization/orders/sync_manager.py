@@ -13,6 +13,7 @@ from salla_integration.core.utils.helpers import (
 	get_default_currency,
 	get_default_order_type_for_incoming_orders,
 	get_default_price_list,
+	get_default_shipping_item_code,
 	get_default_taxes_and_charges,
 	get_default_warehouse,
 	get_item_stock_in_warehouse,
@@ -145,6 +146,11 @@ class OrderSyncManager(BaseSyncManager):
 		# items_data = self.client.get_order_items(order_data.get("id"))
 		items_data = order_data.get("items", {})
 		parsed_items = self._build_order_items(items_data)
+		shipping_item = self._build_shipping_item(
+			order_data.get("amounts", {}).get("shipping_cost", {}).get("amount", 0)
+		)
+		if shipping_item:
+			parsed_items.append(shipping_item)
 
 		default_price_list = get_default_price_list()
 		default_currency = get_default_currency()
@@ -346,6 +352,28 @@ class OrderSyncManager(BaseSyncManager):
 
 		print(f"Built {len(items)} order items.")
 		return items
+
+	def _build_shipping_item(self, shipping_cost: float) -> dict | None:
+		"""
+		Build a shipping item dict if shipping cost is greater than 0.
+
+		Args:
+		    shipping_cost: Shipping cost amount
+		Returns:
+			Shipping item dict or None
+		"""
+		if shipping_cost > 0:
+			shipping_item_code = get_default_shipping_item_code()
+			if shipping_item_code:
+				return {
+					"item_code": shipping_item_code,
+					"qty": 1,
+					"rate": shipping_cost,
+				}
+			else:
+				print("No default shipping item code configured.")
+				return None
+		return None
 
 	def update_order_status_when_delivery_note_created(self, sales_order_name: str) -> None:
 		"""

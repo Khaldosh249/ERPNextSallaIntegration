@@ -17,17 +17,21 @@
   "enable_order_sync",
   "webhook_url",
   "company",
-  "default_warehouse",
-  "secondary_warehouse",
   "salla_order_status_after_submitting_delivery_note",
-  "default_price_list",
-  "default_currency",
-  "default_taxes_and_charges",
   "default_customer_group",
   "default_territory",
-  "default_price_list_for_importing_prices_from_salla",
+  "default_order_type_for_incoming_orders",
+  "defaults_section",
+  "stock_column",
+  "default_warehouse",
+  "secondary_warehouse",
+  "default_item_for_shipping",
+  "prices_and_taxes_column",
+  "default_price_list",
+  "default_currency",
   "default_price_list_for_salla_discounts",
-  "default_order_type_for_incoming_orders"
+  "default_price_list_for_importing_prices_from_salla",
+  "default_taxes_and_charges"
  ],
  "fields": [
   {
@@ -170,13 +174,34 @@
    "fieldtype": "Select",
    "label": "Default Order Type for Incoming Orders",
    "options": "\nSales\nMaintenance\nShopping Cart"
+  },
+  {
+   "fieldname": "default_item_for_shipping",
+   "fieldtype": "Link",
+   "label": "Default Item for Shipping",
+   "options": "Item"
+  },
+  {
+   "fieldname": "defaults_section",
+   "fieldtype": "Section Break",
+   "label": "Defaults"
+  },
+  {
+   "fieldname": "stock_column",
+   "fieldtype": "Column Break",
+   "label": "Stock"
+  },
+  {
+   "fieldname": "prices_and_taxes_column",
+   "fieldtype": "Column Break",
+   "label": "Prices and Taxes"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-02-02 09:50:17.500046",
+ "modified": "2026-02-08 20:03:37.140314",
  "modified_by": "khalid.rashad.business@gmail.com",
  "module": "Salla Integration",
  "name": "Salla Settings",

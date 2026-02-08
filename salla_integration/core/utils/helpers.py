@@ -141,6 +141,17 @@ def get_default_order_type_for_incoming_orders() -> str | None:
 	)
 
 
+def get_default_shipping_item_code() -> str | None:
+	"""
+	Get the default shipping item code from Salla Settings.
+
+	Returns:
+	    Default shipping item code or None
+	"""
+	settings = get_salla_settings()
+	return settings.default_item_for_shipping if hasattr(settings, "default_item_for_shipping") else None
+
+
 def get_default_currency() -> str | None:
 	"""
 	Get the default currency from Salla Settings.
